@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Today — Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#16140f;
+    --surface:#1f1c16;
+    --cream:#edddd6;
+    --cream-dim:#bdb3a8;
+    --muted:#8a857a;
+    --hair:rgba(237,221,214,.09);
+    --hair-strong:rgba(237,221,214,.18);
+    --volt:#d4ff00;
+    --rose:#c39595;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);color:var(--cream);
+    font-family:'Fraunces',serif;
+    background-image:radial-gradient(rgba(237,221,214,.04) 1px,transparent 1px);
+    background-size:22px 22px;
+    display:flex;align-items:center;justify-content:center;
+    padding:18px;overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-feature-settings:"tnum" 1}
+
+  .card{
+    width:100%;max-width:420px;
+    background:var(--surface);
+    border:1px solid var(--hair-strong);
+    box-shadow:8px 8px 0 var(--rose);
+    padding:22px 24px 20px;
+    display:flex;flex-direction:column;gap:18px;
+    position:relative;
+  }
+  .card:before{
+    content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:var(--volt);
+  }
+
+  /* header */
+  .head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--hair);padding-bottom:12px}
+  .head .month{font-weight:300;font-style:italic;font-size:26px;letter-spacing:-.01em;line-height:1}
+  .head .month b{font-style:normal;font-weight:400;color:var(--cream)}
+  .head .year{font-size:10px;color:var(--volt)}
+
+  /* big today */
+  .today{
+    display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;
+    padding:6px 0 4px;
+  }
+  .today .num{
+    font-weight:300;font-size:88px;line-height:.85;letter-spacing:-.04em;
+    color:var(--cream);font-feature-settings:"tnum" 1;
+  }
+  .today .meta{display:flex;flex-direction:column;gap:6px}
+  .today .day{font-style:italic;font-weight:300;font-size:22px;line-height:1;color:var(--rose)}
+  .today .iso{font-size:10px;color:var(--muted)}
+  .today .clock{font-size:11px;color:var(--cream-dim);font-family:'JetBrains Mono',monospace;letter-spacing:.08em}
+  .today .clock b{color:var(--volt);font-weight:500}
+
+  /* week labels */
+  .dow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:9px;color:var(--muted);text-align:center;padding:0 2px}
+
+  /* grid */
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cell{
+    aspect-ratio:1;border:1px solid transparent;
+    display:grid;place-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--cream-dim);
+    font-feature-settings:"tnum" 1;
+    transition:.15s;
+  }
+  .cell.dim{color:var(--muted);opacity:.4}
+  .cell.weekend{color:var(--rose)}
+  .cell.today{
+    background:var(--volt);color:#16140f;font-weight:500;
+    box-shadow:3px 3px 0 var(--rose);
+    transform:translate(-1px,-1px);
+    border-color:var(--volt);
+  }
+
+  /* footer */
+  .foot{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--muted);border-top:1px solid var(--hair);padding-top:12px}
+  .foot .dot{display:inline-block;width:6px;height:6px;background:var(--volt);margin-right:6px;vertical-align:middle;animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  /* compact mode for very small embeds */
+  @media (max-height: 360px){
+    .today .num{font-size:64px}
+    .card{padding:16px 18px}
+    .grid,.dow{display:none}
+    .foot{border-top:none;padding-top:6px}
+  }
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <div class="head">
+    <div class="month"><span id="m-pre">April</span> <b id="m-year">2026</b></div>
+    <div class="year mono" id="m-week">Week 17</div>
+  </div>
+
+  <div class="today">
+    <div class="num" id="t-day">24</div>
+    <div class="meta">
+      <div class="day" id="t-dow">Friday</div>
+      <div class="iso mono" id="t-iso">2026 · 04 · 24</div>
+      <div class="clock"><span class="dot" style="background:var(--volt);display:inline-block;width:6px;height:6px;margin-right:6px;vertical-align:middle"></span><b id="t-clock">00:00</b> · <span id="t-tz">local</span></div>
+    </div>
+  </div>
+
+  <div class="dow mono">
+    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span style="color:var(--rose)">Sat</span><span style="color:var(--rose)">Sun</span>
+  </div>
+  <div class="grid" id="grid"></div>
+
+  <div class="foot">
+    <span class="mono"><span class="dot"></span>LIVE</span>
+    <span class="mono" id="t-doy">DAY 114 · 251 LEFT</span>
+  </div>
+</div>
+
+<script>
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DOWS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  function pad(n){return String(n).padStart(2,'0')}
+
+  function isoWeek(d){
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dn = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - dn);
+    const ys = new Date(Date.UTC(t.getUTCFullYear(),0,1));
+    return Math.ceil((((t - ys)/86400000) + 1)/7);
+  }
+
+  function dayOfYear(d){
+    const s = new Date(d.getFullYear(),0,0);
+    return Math.floor((d - s)/86400000);
+  }
+
+  function render(){
+    const now = new Date();
+    const y = now.getFullYear(), m = now.getMonth(), day = now.getDate();
+
+    document.getElementById('m-pre').textContent = MONTHS[m];
+    document.getElementById('m-year').textContent = y;
+    document.getElementById('m-week').textContent = 'Week ' + pad(isoWeek(now));
+
+    document.getElementById('t-day').textContent = pad(day);
+    document.getElementById('t-dow').textContent = DOWS[now.getDay()];
+    document.getElementById('t-iso').textContent = `${y} · ${pad(m+1)} · ${pad(day)}`;
+
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'local';
+    document.getElementById('t-tz').textContent = tz.split('/').pop().replace('_',' ');
+
+    const doy = dayOfYear(now);
+    const isLeap = (y%4===0 && y%100!==0) || y%400===0;
+    const left = (isLeap?366:365) - doy;
+    document.getElementById('t-doy').textContent = `Day ${pad(doy)} · ${left} left`;
+
+    // grid (Mon-first)
+    const first = new Date(y, m, 1);
+    let lead = (first.getDay() + 6) % 7; // Mon=0
+    const daysInMonth = new Date(y, m+1, 0).getDate();
+    const prevDays = new Date(y, m, 0).getDate();
+
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    const cells = [];
+
+    for(let i=lead;i>0;i--) cells.push({n: prevDays - i + 1, dim:true, weekend:false, today:false});
+    for(let d=1;d<=daysInMonth;d++){
+      const dt = new Date(y,m,d);
+      const dow = dt.getDay();
+      cells.push({n:d, dim:false, weekend:(dow===0||dow===6), today: d===day});
+    }
+    while(cells.length % 7 !== 0) cells.push({n: cells.length - lead - daysInMonth + 1 - (cells.length%7?0:0), dim:true, weekend:false, today:false});
+    // simpler trailing fill
+    let trail = 1;
+    while(cells.length < 42){ cells.push({n:trail++, dim:true, weekend:false, today:false}); }
+
+    cells.forEach((c,i)=>{
+      const el = document.createElement('div');
+      el.className = 'cell' + (c.dim?' dim':'') + (c.weekend?' weekend':'') + (c.today?' today':'');
+      el.textContent = pad(c.n);
+      grid.appendChild(el);
+    });
+  }
+
+  function tick(){
+    const now = new Date();
+    document.getElementById('t-clock').textContent =
+      pad(now.getHours()) + ':' + pad(now.getMinutes());
+  }
+
+  render(); tick();
+  setInterval(tick, 30 * 1000);
+  // re-render past midnight
+  setInterval(()=>{
+    const n = new Date();
+    if(n.getHours()===0 && n.getMinutes()<2) render();
+  }, 60 * 1000);
+</script>
+
+</body>
+</html>
